@@ -1,0 +1,41 @@
+﻿@page "/"
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div id="qrCode"></div>
+<div id="qrCodeData" data-url="otpauth://totp/Blazor:kamil.niescieronek@gmail.com?secret=ZOLASCJY4VFXHHCMONVC72A2QESANIGM&issuer=Blazor&digits=6"></div>
+
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+
+@code {
+    private IJSObjectReference? _module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>("import",
+                "./js/qr.js");
+
+            if (_module is not null)
+            {
+                Console.WriteLine("qr.js is invoked");
+            }
+        }
+    }
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}
